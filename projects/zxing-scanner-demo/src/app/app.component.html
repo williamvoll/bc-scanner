@@ -1,0 +1,87 @@
+<div class="scanner-shell" [hidden]="!hasDevices">
+
+  <mat-menu #appMenu="matMenu">
+    <mat-selection-list>
+      <mat-list-option checkboxPosition="start" (click)="toggleTryHarder()" [selected]="tryHarder">
+        risoluzione massima
+      </mat-list-option>
+      <mat-list-option checkboxPosition="start" (click)="toggleTorch()" [selected]="torchEnabled"
+        *ngIf="torchAvailable$ | async">
+        flash
+      </mat-list-option>
+    </mat-selection-list>
+    <mat-divider></mat-divider>
+    <button mat-menu-item (click)="openFormatsDialog()">Formati</button>
+    <button mat-menu-item (click)="openInfoDialog()">Debug</button>
+  </mat-menu>
+
+  <header>
+    <mat-form-field appearance="fill">
+      <select matNativeControl matInput (change)="onDeviceSelectChange($event.target.value)">
+        <option value="" [selected]="!currentDevice">Nessuna camera selezionata</option>
+        <option *ngFor="let device of availableDevices" [value]="device.deviceId"
+          [selected]="currentDevice && device.deviceId === currentDevice.deviceId">{{device.label}}</option>
+      </select>
+    </mat-form-field>
+    <button mat-icon-button [matMenuTriggerFor]="appMenu">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+  </header>
+
+  <zxing-scanner [torch]="torchEnabled" [(device)]="currentDevice" (scanSuccess)="onCodeResult($event)"
+  [formats]="formatsEnabled" [tryHarder]="tryHarder" (permissionResponse)="onHasPermission($event)"
+  (camerasFound)="onCamerasFound($event)" (torchCompatible)="onTorchCompatible($event)" #scannervideo></zxing-scanner>
+  <div #barcodeimage></div>
+  <!-- <button (click)="saveImage()">Save image</button> -->
+
+  <section class="results" *ngIf="qrResultString">
+    <div *ngIf="isLoading; else defaultView">Loading...</div>
+    <ng-template #defaultView>
+      <div>
+        <small>Risultato</small>
+        <strong>{{ qrResultString }}</strong>
+      </div>
+      <div>
+        <img src="{{ imageUrl }}" width="160" height="120" />
+      </div>
+      <button mat-icon-button (click)="clearResult()">&times;</button>
+    </ng-template>
+  </section>
+
+</div>
+
+<ng-container *ngIf="hasPermission === undefined">
+
+  <h2>cod. n. 1</h2>
+
+  <blockquote>
+    cod. n. 2
+  </blockquote>
+
+</ng-container>
+
+<ng-container *ngIf="hasPermission === false">
+
+  <h2>cod. n. 3</h2>
+
+</ng-container>
+
+<ng-container *ngIf="hasDevices === undefined">
+
+  <h2>cod. n. 4</h2>
+
+  <blockquote>
+    cod. n. 5
+  </blockquote>
+
+</ng-container>
+
+<ng-container *ngIf="hasDevices === false">
+
+  <h2>cod. n. 6</h2>
+
+  <blockquote>
+    cod. n. 7
+  </blockquote>
+
+</ng-container>
